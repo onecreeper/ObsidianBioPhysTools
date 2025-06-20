@@ -1,4 +1,5 @@
 from utils import Ai
+from utils import file
 import base64
 import json
 import os
@@ -95,7 +96,7 @@ def save_files_from_json(json_string, output_dir='output'):
     except Exception as e:
         logging.error(f"创建文件时发生未知错误: {e}")
 
-if __name__ == '__main__':
+def v01():
     cur_path = os.path.dirname(os.path.abspath(__file__))
     conf = load_config(os.path.join(cur_path, 'key-api.json'))
     
@@ -148,3 +149,46 @@ if __name__ == '__main__':
     del_images(image_paths)
     
     logging.info("--- 所有任务完成 ---")
+    
+def v025():
+    # 配置文件读取
+    cur_path = os.path.dirname(os.path.abspath(__file__))
+    example_path = os.path.join(cur_path, 'keyexample.json')
+    with open(example_path,"r") as f:
+        default_cfg = json.load(f)
+    ai_cfg = file.Config("LLM_settings",default_cfg) 
+    conf = ai_cfg.context
+    
+    # === 阶段1：视觉识别与草稿生成 ===
+    logging.info("--- 阶段1：视觉识别与草稿生成 ---")
+    image_paths = get_image_paths()
+    if not image_paths:
+        logging.warning("未找到任何图片，程序退出。")
+        exit()
+        
+    images_encoded = []
+    for image_path in image_paths: 
+        images_encoded.append(Ai.encode_image(image_path))
+        
+    with open(os.path.join(cur_path, 'vision.txt'), 'r', encoding='utf-8') as f:
+        vision_prompt = f.read()
+
+    agent1_name = "vision" 
+    vision_agent = Ai.LLM(conf[agent1_name]["api_key"], conf[agent1_name]["base_url"], conf[agent1_name]["model"], "你是一名高中生物老师")
+    draft_res = vision_agent.chat(vision_prompt, images_encoded) 
+    logging.info("阶段1完成，已生成草稿。")
+
+    # === 阶段2：校对与修正 ===
+    logging.info("--- 阶段2：校对与修正 ---")
+    with open(os.path.join(cur_path, 'review.txt'), 'r', encoding='utf-8') as f:
+        review_prompt = f.read()
+        
+    agent2_name = "review" 
+    review_agent = Ai.LLM(conf[agent2_name]["api_key"], conf[agent2_name]["base_url"], conf[agent2_name]["model"], "你是一名拥有绝对权限的终极知识库校对官")
+    corrected_res = review_agent.chat((review_prompt + "\n\n【待审草稿】:\n" + draft_res)) 
+    logging.info("阶段2完成，已生成修正版文本。")
+
+
+
+if __name__ == "__main__":
+    v025()

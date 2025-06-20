@@ -3,6 +3,7 @@ legacy
 
 # 安全密钥
 secrets-*
+secret-*
 passwd-*
 key-*
 
