@@ -181,7 +181,7 @@ def v050():
         logging.warning("未找到任何图片，程序退出。")
         return
         
-    logging.info(f"--- 阶段1 (并行): 发现 {len(image_paths)} 张图片，启动最多5个线程生成初稿 ---")
+    logging.info(f"--- 阶段1 (并行): 发现 {len(image_paths)} 张图片，启动最多{concurrency}个线程生成初稿 ---")
     
     all_first_drafts = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
