@@ -11,8 +11,6 @@ import threading
 import concurrent.futures
 
 
-
-
 def load_config(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         config_data = json.load(f)
@@ -153,6 +151,9 @@ def run_first_draft_generation(image_path, vision_agent, vision_prompt):
         return ""
 
 def v050():
+    # 同时运行的vision数量限制
+    concurrency = 10 
+    
     # --- 1. 配置与初始化 ---
     logging.info("--- 初始化配置与AI Agent ---")
     cur_path = os.path.dirname(os.path.abspath(__file__))
@@ -183,7 +184,7 @@ def v050():
     logging.info(f"--- 阶段1 (并行): 发现 {len(image_paths)} 张图片，启动最多5个线程生成初稿 ---")
     
     all_first_drafts = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=concurrency) as executor:
         future_to_image = {executor.submit(run_first_draft_generation, img_path, vision_agent, vision_prompt): img_path for img_path in image_paths}
         for future in concurrent.futures.as_completed(future_to_image):
             try:
@@ -235,21 +236,16 @@ def v050():
 
 # 在主执行块中调用新函数
 if __name__ == "__main__":
-    # 计算日志文件路径
+    # log
     current_dir = os.path.dirname(__file__)
     log_dir = os.path.join(current_dir, 'log')
     os.makedirs(log_dir, exist_ok=True)
     log_file_path = os.path.join(log_dir, 'main.log')
-
-    # 在这里进行一次完整的配置
     logging.basicConfig(
+        filename=log_file_path,
         level=logging.INFO,
-        format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s',
-        encoding='utf-8',
-        # 同时配置输出到文件和控制台
-        handlers=[
-            logging.FileHandler(log_file_path, 'a', 'utf-8'),
-            logging.StreamHandler() # 输出到控制台
-        ]
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        encoding='utf-8'
     )
+    # 主要部分
     v050()
