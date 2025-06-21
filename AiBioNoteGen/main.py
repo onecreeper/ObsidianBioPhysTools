@@ -167,6 +167,7 @@ def v025():
     
     # Vision 与 Review 生成与改进
     
+    # init
     vision_prompt = prompt_reader("vision.txt")
     review_prompt = prompt_reader("review-cyc.txt")
     
@@ -175,7 +176,30 @@ def v025():
     review_agent_name = "review"
     review_agent = Ai.LLM(conf[review_agent_name]["api_key"], conf[review_agent_name]["base_url"], conf[review_agent_name]["model"], "你是一名高中生物老师")
 
+    #=== 阶段1：视觉识别与草稿生成 ===
     
+    # 图片编码
+    logging.info("--- 阶段1：视觉识别与草稿生成 ---")
+    image_paths = get_image_paths()
+    if not image_paths:
+        logging.warning("未找到任何图片，程序退出。")
+        exit()
+    images_encoded = []
+    for image_path in image_paths: 
+        images_encoded.append(Ai.encode_image(image_path))
+        
+    # 草稿生成
+    draft_res = vision_agent.chat(vision_prompt, images_encoded)
+    logging.info("阶段1完成，已生成草稿。")
+    
+
+    # === 阶段2：校对与修正 ===
+    logging.info("--- 阶段2：校对与修正 ---")
+    review_res = review_agent.chat((review_prompt + "\n\n【待审草稿】:\n" + draft_res))
+    logging.info("阶段2完成，已生成修正版文本。")
+    
+    end_res = vision_agent.chat(review_res)
+
     
 
 
