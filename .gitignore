@@ -29,6 +29,7 @@ __pycache__/
 *.so
 
 # 分发 / 打包相关文件
+.venv
 .Python
 env/
 venv/
