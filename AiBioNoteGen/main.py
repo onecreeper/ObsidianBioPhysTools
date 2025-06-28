@@ -98,6 +98,10 @@ def save_files_from_response(response_text: str, output_dir: str):
     """
     解析由最终模型生成的、包含多个文件的单一文本响应，并保存它们。
     """
+    if response_text is None:
+        logging.error("无法保存文件：响应文本为None")
+        return
+        
     # 确保输出目录存在
     os.makedirs(output_dir, exist_ok=True)
     file_separator = "###-###-END-OF-FILE-###-###"
@@ -152,12 +156,15 @@ def run_first_draft_generation(image_path, vision_agent, vision_prompt):
 
 def v050():
     # 同时运行的vision数量限制
-    concurrency = 10 
+    concurrency = 10
     
     # --- 1. 配置与初始化 ---
     logging.info("--- 初始化配置与AI Agent ---")
     cur_path = os.path.dirname(os.path.abspath(__file__))
-    conf = load_config(os.path.join(cur_path, 'key-api.json'))
+    keyexample = load_config(os.path.join(cur_path, 'keyexample.json'))
+    cfg = file.Config("key-api.json",keyexample,True)
+    cfg.load()
+    conf = cfg.context
     
     # 读取主模板和三个阶段的包装Prompt
     master_prompt = prompt_reader("master_prompt.txt")
@@ -234,7 +241,6 @@ def v050():
     
     logging.info("--- 所有任务完成 ---")
 
-# 在主执行块中调用新函数
 if __name__ == "__main__":
     # log
     current_dir = os.path.dirname(__file__)

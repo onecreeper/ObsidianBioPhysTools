@@ -11,17 +11,19 @@ import os
 import json
 import logging
 
-# log
 current_dir = os.path.dirname(__file__)
-log_dir = os.path.join(current_dir, '..', 'log')
-os.makedirs(log_dir, exist_ok=True)
-log_file_path = os.path.join(log_dir, 'file.log')
-logging.basicConfig(
-    filename=log_file_path,
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    encoding='utf-8'
-)
+# log
+def log_init():
+    current_dir = os.path.dirname(__file__)
+    log_dir = os.path.join(current_dir, '..', 'log')
+    os.makedirs(log_dir, exist_ok=True)
+    log_file_path = os.path.join(log_dir, 'file.log')
+    logging.basicConfig(
+        filename=log_file_path,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        encoding='utf-8'
+    )
 
 
 class Config:
@@ -81,6 +83,7 @@ class Config:
             
 
 if __name__ == '__main__':
+    log_init()
     config = Config('test')
     config.context['test'] = 'test'
     config.update()

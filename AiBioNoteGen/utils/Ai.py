@@ -6,17 +6,17 @@ import os
 from openai import OpenAI
 from typing import List, Optional, Union
 
-# log
-current_dir = os.path.dirname(__file__)
-log_dir = os.path.join(current_dir, '..', 'log')
-os.makedirs(log_dir, exist_ok=True)
-log_file_path = os.path.join(log_dir, 'Ai.log')
-logging.basicConfig(
-    filename=log_file_path,
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    encoding='utf-8'
-)
+def log_init():
+    current_dir = os.path.dirname(__file__)
+    log_dir = os.path.join(current_dir, '..', 'log')
+    os.makedirs(log_dir, exist_ok=True)
+    log_file_path = os.path.join(log_dir, 'Ai.log')
+    logging.basicConfig(
+        filename=log_file_path,
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        encoding='utf-8'
+    )
 
 
 class LLM:
@@ -286,4 +286,5 @@ def main():
 
 
 if __name__ == '__main__':
+    log_init()
     main()

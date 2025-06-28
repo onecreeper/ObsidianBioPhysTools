@@ -7,6 +7,9 @@ secret-*
 passwd-*
 key-*
 
+#输入输出文件
+AiBioNoteGen/img/*
+AiBioNoteGen/Obsidian-Notes/*
 
 
 # 临时目录
